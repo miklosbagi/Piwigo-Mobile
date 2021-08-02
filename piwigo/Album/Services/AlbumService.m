@@ -291,6 +291,13 @@ NSString * const kCategoryDeletionModeAll = @"force_delete";
         }
         if (![[category objectForKey:@"comment"] isKindOfClass:[NSNull class]]) {
             albumData.comment = [NetworkObjcUtilities utf8mb4ObjcStringFrom:[category objectForKey:@"comment"]];
+            
+            // Fix #464: HTML Decode Album Comment
+            NSData* stringData = [albumData.comment dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary* options = @{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType};
+            NSAttributedString* decodedAttributedString = [[NSAttributedString alloc] initWithData:stringData options:options documentAttributes:NULL error:NULL];
+            NSString* decodedComment = [decodedAttributedString string];
+            albumData.comment = decodedComment;
         } else {
             albumData.comment = @"";
         }
